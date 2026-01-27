@@ -3,7 +3,6 @@ package org.wallet.controller;
 import org.wallet.dao.TransactionDAO;
 import org.wallet.dao.UserDAO;
 
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.servlet.*;
 import java.io.IOException;

@@ -1,6 +1,5 @@
 package org.wallet.controller;
 
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.servlet.*;
 import java.io.IOException;

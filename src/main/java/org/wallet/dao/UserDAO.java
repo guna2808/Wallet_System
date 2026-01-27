@@ -27,7 +27,7 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
-    //Registration with Password Hased
+    //Registration with Password Hashed
     public boolean register(String username, String password) {
 
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";

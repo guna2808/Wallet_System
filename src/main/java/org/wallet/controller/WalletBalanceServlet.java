@@ -5,7 +5,6 @@ import org.wallet.dao.TransactionDAO;
 import org.wallet.dao.UserDAO;
 import org.wallet.dto.BalanceResponseDTO;
 
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import javax.servlet.*;
 import java.io.IOException;
