@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class WalletBalanceServlet extends HttpServlet {
 
-     UserDAO userDAO = new UserDAO();
-     TransactionDAO transactionDAO = new TransactionDAO();
+     private final UserDAO userDAO = new UserDAO();
+     private final TransactionDAO transactionDAO = new TransactionDAO();
      Gson gson = new Gson();
 
     @Override
