@@ -14,8 +14,8 @@ import java.util.Map;
 public class LoginServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginServlet.class);
-    UserDAO userDAO = new UserDAO();
-    Gson gson = new Gson();
+    private final UserDAO userDAO = new UserDAO();
+    private final Gson gson = new Gson();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
