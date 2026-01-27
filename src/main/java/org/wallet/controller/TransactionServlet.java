@@ -10,8 +10,8 @@ import java.io.IOException;
 
 public class TransactionServlet extends HttpServlet {
 
-    TransactionDAO transactionDAO = new TransactionDAO();
-    UserDAO userDAO = new UserDAO();
+    private final TransactionDAO transactionDAO = new TransactionDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
