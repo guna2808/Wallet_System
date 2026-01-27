@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class RegisterServlet extends HttpServlet {
 
-    private final UserDAO userDAO = new UserDAO();
+    UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
