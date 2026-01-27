@@ -6,6 +6,7 @@ public class TransactionResponseDTO {
     private String type;
     private String createdAt;
 
+    // Only neccessary options transfered
     public TransactionResponseDTO(double amount, String type, String createdAt) {
         this.amount = amount;
         this.type = type;
