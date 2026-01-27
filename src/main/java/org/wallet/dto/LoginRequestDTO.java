@@ -5,7 +5,7 @@ public class LoginRequestDTO {
     private String username;
     private String password;
 
-    public String getUsername() {
+    public getUsername() {
         return username;
     }
 
