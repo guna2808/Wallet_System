@@ -8,6 +8,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
 
+    //hikari connection datasource
     private static final HikariDataSource ds;
 
     static {
