@@ -15,8 +15,8 @@ import java.util.List;
 
 public class GetTransactionsServlet extends HttpServlet {
 
-    private final TransactionDAO transactionDAO = new TransactionDAO();
-    private final UserDAO userDAO = new UserDAO();
+    TransactionDAO transactionDAO = new TransactionDAO();
+    UserDAO userDAO = new UserDAO();
     Gson gson = new Gson();
 
     @Override
