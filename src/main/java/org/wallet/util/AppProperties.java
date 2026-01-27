@@ -2,7 +2,7 @@ package org.wallet.util;
 
 import java.io.InputStream;
 import java.util.Properties;
-
+//application properties util
 public class AppProperties {
 
     private static final Properties props = new Properties();
