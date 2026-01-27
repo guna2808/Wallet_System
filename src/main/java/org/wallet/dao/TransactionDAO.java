@@ -57,7 +57,7 @@ public class TransactionDAO {
 
         return list;
     }
-
+//Get balance only depending on truth transaction values
     public double getWalletBalance(int userId) {
 
         String sql =
