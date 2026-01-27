@@ -13,7 +13,7 @@ public class LogoutServlet extends HttpServlet {
 
         resp.setContentType("application/json");
 
-        HttpSession session = req.getSession(false);
+        HttpSession session = req.getSession(true);
 
         if (session != null) {
             session.invalidate();
