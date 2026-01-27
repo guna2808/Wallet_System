@@ -12,6 +12,7 @@ public class Transaction {
 
     public Transaction() {}
 
+    //Transaction Operation 
     public Transaction(int id, int userId, double amount,
                        String type, Timestamp createdAt) {
         this.id = id;
