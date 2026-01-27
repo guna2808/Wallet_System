@@ -5,8 +5,6 @@ A **pure backend wallet system** built using **Java Servlets + JDBC + MySQL**, f
 ❌ No JSP  
 ❌ No UI  
 ✅ API-only backend  
-✅ Production-ready security
-
 ---
 
 ## 📌 Project Overview
