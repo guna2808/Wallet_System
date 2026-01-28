@@ -1,62 +1,65 @@
 package org.wallet.dao;
 
-import org.wallet.util.DBConnection;
+import org.wallet.util.DataSourceUtil;
 import org.wallet.util.PasswordUtil;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLException;
 
 public class UserDAO {
 
-    public boolean login(String username, String password) {
+    private final DataSource dataSource;
 
-        String sql = "SELECT password FROM users WHERE username=?";
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, username.trim());
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                String hashedPassword = rs.getString("password");
-                return PasswordUtil.verifyPassword(password, hashedPassword);
-            }
-
-            return false;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public UserDAO() {
+        this.dataSource = DataSourceUtil.getDataSource();
     }
-    //Registration with Password Hashed
-    public boolean register(String username, String password) {
 
+    public UserDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public boolean register(String username, String password) {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, username.trim());
+            ps.setString(1, username);
             ps.setString(2, PasswordUtil.hashPassword(password));
-
             ps.executeUpdate();
             return true;
 
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } catch (SQLException e) {
             return false;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean login(String username, String password) {
+        String sql = "SELECT password FROM users WHERE username = ?";
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return PasswordUtil.verifyPassword(password, rs.getString("password"));
+            }
+            return false;
+
+        } catch (SQLException e) {
+            return false;
         }
     }
 
     public int getUserIdByUsername(String username) {
+        String sql = "SELECT id FROM users WHERE username = ?";
 
-        String sql = "SELECT id FROM users WHERE username=?";
-
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, username);
@@ -65,11 +68,10 @@ public class UserDAO {
             if (rs.next()) {
                 return rs.getInt("id");
             }
-
             return -1;
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            return -1;
         }
     }
 }

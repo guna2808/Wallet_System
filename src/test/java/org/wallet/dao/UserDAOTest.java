@@ -2,81 +2,111 @@ package org.wallet.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.wallet.util.PasswordUtil;
 
-import java.util.UUID;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserDAOTest {
+
+    private DataSource dataSource;
+    private Connection connection;
+    private PreparedStatement ps;
+    private ResultSet rs;
 
     private UserDAO userDAO;
 
     @BeforeEach
-    void setup() {
-        userDAO = new UserDAO();
-    }
+    void setup() throws Exception {
+        dataSource = mock(DataSource.class);
+        connection = mock(Connection.class);
+        ps = mock(PreparedStatement.class);
+        rs = mock(ResultSet.class);
 
-    private String uniqueUsername() {
-        return "user_" + UUID.randomUUID();
-    }
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(ps);
 
-    @Test
-    void registerUser_success() {
-        String username = uniqueUsername();
-
-        boolean result = userDAO.register(username, "password123");
-        assertTrue(result);
+        userDAO = new UserDAO(dataSource);
     }
 
     @Test
-    void registerUser_duplicateUsername() {
-        String username = uniqueUsername();
+    void registerUser_success() throws Exception {
+        when(ps.executeUpdate()).thenReturn(1);
 
-        userDAO.register(username, "password123");
-        boolean result = userDAO.register(username, "password123");
-
-        assertFalse(result);
-    }
-
-    @Test
-    void login_success() {
-        String username = uniqueUsername();
-
-        userDAO.register(username, "password123");
-        boolean result = userDAO.login(username, "password123");
+        boolean result = userDAO.register("guna", "password123");
 
         assertTrue(result);
     }
 
     @Test
-    void login_wrongPassword() {
-        String username = uniqueUsername();
+    void registerUser_duplicateUsername() throws Exception {
+        when(ps.executeUpdate()).thenThrow(new SQLException("Duplicate entry"));
 
-        userDAO.register(username, "password123");
-        boolean result = userDAO.login(username, "wrong");
+        boolean result = userDAO.register("guna", "password123");
 
         assertFalse(result);
     }
 
     @Test
-    void login_userNotFound() {
-        boolean result = userDAO.login("ghost_" + UUID.randomUUID(), "test");
+    void login_success() throws Exception {
+        String hash = PasswordUtil.hashPassword("password123");
+
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getString("password")).thenReturn(hash);
+
+        boolean result = userDAO.login("guna", "password123");
+
+        assertTrue(result);
+    }
+
+    @Test
+    void login_wrongPassword() throws Exception {
+        String hash = PasswordUtil.hashPassword("password123");
+
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getString("password")).thenReturn(hash);
+
+        boolean result = userDAO.login("guna", "wrong");
+
         assertFalse(result);
     }
 
     @Test
-    void getUserId_success() {
-        String username = uniqueUsername();
+    void login_userNotFound() throws Exception {
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
 
-        userDAO.register(username, "password123");
-        int userId = userDAO.getUserIdByUsername(username);
+        boolean result = userDAO.login("ghost", "password");
 
-        assertTrue(userId > 0);
+        assertFalse(result);
     }
 
     @Test
-    void getUserId_notFound() {
-        int userId = userDAO.getUserIdByUsername("ghost_" + UUID.randomUUID());
+    void getUserId_success() throws Exception {
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getInt("id")).thenReturn(7);
+
+        int userId = userDAO.getUserIdByUsername("guna");
+
+        assertEquals(7, userId);
+    }
+
+    @Test
+    void getUserId_notFound() throws Exception {
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(false);
+
+        int userId = userDAO.getUserIdByUsername("ghost");
+
         assertEquals(-1, userId);
     }
 }

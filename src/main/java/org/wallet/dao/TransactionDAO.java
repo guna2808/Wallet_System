@@ -1,33 +1,39 @@
 package org.wallet.dao;
 
 import org.wallet.model.Transaction;
-import org.wallet.util.DBConnection;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDAO {
+
+    private final DataSource dataSource;
+
+    public TransactionDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public boolean addTransaction(int userId, double amount, String type) {
 
         String sql =
                 "INSERT INTO transactions (user_id, amount, type) VALUES (?, ?, ?)";
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ps.setDouble(2, amount);
             ps.setString(3, type);
 
-            ps.executeUpdate();
-            return true;
+            return ps.executeUpdate() > 0;
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            return false;
         }
     }
 
@@ -35,9 +41,9 @@ public class TransactionDAO {
 
         List<Transaction> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM transactions WHERE user_id=?";
+        String sql = "SELECT * FROM transactions WHERE user_id = ?";
 
-        try (Connection con = DBConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
@@ -53,36 +59,42 @@ public class TransactionDAO {
                 );
                 list.add(t);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+        } catch (SQLException e) {
+            return list;
         }
 
         return list;
     }
-//Get balance only depending on truth transaction values
+
     public double getWalletBalance(int userId) {
 
         String sql =
-                "SELECT " +
-                        "SUM(CASE WHEN type='credit' THEN amount ELSE 0 END) - " +
-                        "SUM(CASE WHEN type='debit' THEN amount ELSE 0 END) AS balance " +
-                        "FROM transactions WHERE user_id=?";
+                "SELECT amount, type FROM transactions WHERE user_id = ?";
 
-        try (Connection con = DBConnection.getConnection();
+        double balance = 0.0;
+
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                return rs.getDouble("balance");
+            while (rs.next()) {
+                double amount = rs.getDouble("amount");
+                String type = rs.getString("type");
+
+                if ("credit".equalsIgnoreCase(type)) {
+                    balance += amount;
+                } else if ("debit".equalsIgnoreCase(type)) {
+                    balance -= amount;
+                }
             }
 
+        } catch (SQLException e) {
             return 0.0;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-    }
 
+        return balance;
+    }
 }

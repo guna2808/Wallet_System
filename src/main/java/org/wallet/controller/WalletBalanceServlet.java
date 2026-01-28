@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.wallet.dao.TransactionDAO;
 import org.wallet.dao.UserDAO;
 import org.wallet.dto.BalanceResponseDTO;
+import org.wallet.util.DataSourceUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,7 +18,7 @@ import java.util.Map;
 public class WalletBalanceServlet extends HttpServlet {
 
      UserDAO userDAO = new UserDAO();
-     TransactionDAO transactionDAO = new TransactionDAO();
+     TransactionDAO transactionDAO = new TransactionDAO(DataSourceUtil.getDataSource());
      Gson gson = new Gson();
 
     @Override

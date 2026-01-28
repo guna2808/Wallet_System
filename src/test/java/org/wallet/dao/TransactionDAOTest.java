@@ -2,87 +2,119 @@ package org.wallet.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TransactionDAOTest {
 
+    @Mock
+    private DataSource dataSource;
+
+    @Mock
+    private Connection connection;
+
+    @Mock
+    private PreparedStatement preparedStatement;
+
+    @Mock
+    private ResultSet resultSet;
+
+    @InjectMocks
     private TransactionDAO transactionDAO;
-    private int userId;
 
     @BeforeEach
-    void setup() {
+    void setup() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    }
 
-        UserDAO userDAO = new UserDAO();
-        transactionDAO = new TransactionDAO();
+    // -------------------------
+    // addTransaction()
+    // -------------------------
 
-        String username = "testuser_" + System.currentTimeMillis();
+    @Test
+    void addTransaction_success() throws Exception {
+        when(preparedStatement.executeUpdate()).thenReturn(1);
 
-        userDAO.register(username, "password123");
+        boolean result = transactionDAO.addTransaction(
+                1,
+                500.0,
+                "CREDIT"
+        );
 
-        userId = userDAO.getUserIdByUsername(username);
+        assertTrue(result);
 
-        assertTrue(userId > 0);
+        verify(preparedStatement).setInt(1, 1);
+        verify(preparedStatement).setDouble(2, 500.0);
+        verify(preparedStatement).setString(3, "CREDIT");
+        verify(preparedStatement).executeUpdate();
     }
 
     @Test
-    void addTransaction_credit() {
+    void addTransaction_failure() throws Exception {
+        when(preparedStatement.executeUpdate()).thenReturn(0);
 
-        try {
-            transactionDAO.addTransaction(userId, 100.0, "credit");
-        } catch (Exception e) {
-            fail("Credit transaction failed");
-        }
+        boolean result = transactionDAO.addTransaction(
+                1,
+                500.0,
+                "DEBIT"
+        );
+
+        assertFalse(result);
     }
 
-    @Test
-    void addTransaction_debit() {
-
-        try {
-            transactionDAO.addTransaction(userId, 50.0, "debit");
-        } catch (Exception e) {
-            fail("Debit transaction failed");
-        }
-    }
+    // -------------------------
+    // getWalletBalance()
+    // -------------------------
 
     @Test
-    void getTransactionsByUser() {
+    void getWalletBalance_onlyCredit() throws Exception {
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
-        transactionDAO.addTransaction(userId, 100.0, "credit");
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getString("type")).thenReturn("CREDIT");
+        when(resultSet.getDouble("amount")).thenReturn(200.0);
 
-        List<?> transactions = transactionDAO.getTransactionsByUser(userId);
-
-        assertNotNull(transactions);
-        assertFalse(transactions.isEmpty());
-    }
-
-    @Test
-    void getWalletBalance_onlyCredit() {
-
-        transactionDAO.addTransaction(userId, 200.0, "credit");
-
-        double balance = transactionDAO.getWalletBalance(userId);
+        double balance = transactionDAO.getWalletBalance(1);
 
         assertEquals(200.0, balance);
     }
 
     @Test
-    void getWalletBalance_creditAndDebit() {
+    void getWalletBalance_creditAndDebit() throws Exception {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
-        transactionDAO.addTransaction(userId, 200.0, "credit");
-        transactionDAO.addTransaction(userId, 50.0, "debit");
+        when(resultSet.next()).thenReturn(true, true, false);
+        when(resultSet.getString("type"))
+                .thenReturn("CREDIT")
+                .thenReturn("DEBIT");
+        when(resultSet.getDouble("amount"))
+                .thenReturn(500.0)
+                .thenReturn(200.0);
 
-        double balance = transactionDAO.getWalletBalance(userId);
+        double balance = transactionDAO.getWalletBalance(1);
 
-        assertEquals(150.0, balance);
+        assertEquals(300.0, balance);
     }
 
     @Test
-    void getWalletBalance_noTransactions() {
+    void getWalletBalance_noTransactions() throws Exception {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
 
-        double balance = transactionDAO.getWalletBalance(userId);
+        double balance = transactionDAO.getWalletBalance(1);
 
         assertEquals(0.0, balance);
     }

@@ -21,6 +21,7 @@ public class AppProperties {
     }
 
     public static String get(String key) {
+
         return props.getProperty(key);
     }
 }

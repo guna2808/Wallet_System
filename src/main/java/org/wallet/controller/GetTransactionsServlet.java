@@ -5,6 +5,7 @@ import org.wallet.dao.TransactionDAO;
 import org.wallet.dao.UserDAO;
 import org.wallet.dto.TransactionResponseDTO;
 import org.wallet.model.Transaction;
+import org.wallet.util.DataSourceUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class GetTransactionsServlet extends HttpServlet {
 
-    TransactionDAO transactionDAO = new TransactionDAO();
+    TransactionDAO transactionDAO = new TransactionDAO(DataSourceUtil.getDataSource());
     UserDAO userDAO = new UserDAO();
     Gson gson = new Gson();
 

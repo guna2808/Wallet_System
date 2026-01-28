@@ -2,6 +2,7 @@ package org.wallet.controller;
 
 import org.wallet.dao.TransactionDAO;
 import org.wallet.dao.UserDAO;
+import org.wallet.util.DataSourceUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,7 +13,7 @@ import java.io.IOException;
 
 public class TransactionServlet extends HttpServlet {
 
-    TransactionDAO transactionDAO = new TransactionDAO();
+    TransactionDAO transactionDAO = new TransactionDAO(DataSourceUtil.getDataSource());
     UserDAO userDAO = new UserDAO();
 
     @Override
