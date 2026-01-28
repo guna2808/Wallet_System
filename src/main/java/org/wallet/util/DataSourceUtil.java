@@ -22,9 +22,11 @@ public class DataSourceUtil {
                     config.setUsername(AppProperties.get("db.username"));
                     config.setPassword(AppProperties.get("db.password"));
                     config.setDriverClassName(AppProperties.get("db.driver"));
-                    config.setMaximumPoolSize(10);
-                    config.setMinimumIdle(2);
-                    config.setPoolName("WalletHikariPool");
+
+                    config.setPoolName(AppProperties.get("db.pool.name"));
+                    config.setMaximumPoolSize(Integer.parseInt(AppProperties.get("db.maximumSize")));
+                    config.setMinimumIdle(Integer.parseInt(AppProperties.get("db.minimumIdle")));
+
 
                     dataSource = new HikariDataSource(config);
                 }
