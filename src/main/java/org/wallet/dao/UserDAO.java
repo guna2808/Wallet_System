@@ -1,8 +1,12 @@
 package org.wallet.dao;
 
 import org.wallet.util.DBConnection;
-import java.sql.*;
 import org.wallet.util.PasswordUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 public class UserDAO {
 
