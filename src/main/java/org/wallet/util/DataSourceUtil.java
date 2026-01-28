@@ -21,7 +21,7 @@ public class DataSourceUtil {
                     config.setJdbcUrl(AppProperties.get("db.url"));
                     config.setUsername(AppProperties.get("db.username"));
                     config.setPassword(AppProperties.get("db.password"));
-
+                    config.setDriverClassName(AppProperties.get("db.driver"));
                     config.setMaximumPoolSize(10);
                     config.setMinimumIdle(2);
                     config.setPoolName("WalletHikariPool");
