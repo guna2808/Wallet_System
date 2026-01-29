@@ -1,8 +1,8 @@
 ```mermaid
 ---
 config:
-  theme: default
-  look: neo
+  theme: neo
+  look: classic
 ---
 classDiagram
 
