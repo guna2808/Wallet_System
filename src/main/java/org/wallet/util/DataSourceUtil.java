@@ -27,7 +27,6 @@ public class DataSourceUtil {
                     config.setMaximumPoolSize(Integer.parseInt(AppProperties.get("db.maximumSize")));
                     config.setMinimumIdle(Integer.parseInt(AppProperties.get("db.minimumIdle")));
 
-
                     dataSource = new HikariDataSource(config);
                 }
             }
